@@ -48,7 +48,7 @@ jobs:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
           aws_secret_key: ${{ secrets.AWS_SECRET_KEY }}
           use_existing_version_if_available: false
-          application_name: full-stack-project
+          application_name: full-stack-project-app
           environment_name: full-stack-project-env
           version_label: ${{ github.SHA }}
           region: us-east-1
