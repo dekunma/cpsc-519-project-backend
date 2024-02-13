@@ -1,4 +1,4 @@
-module github.com/dekunma/gin-books-test
+module github.com/dekunma/cpsc-519-project-backend
 
 go 1.21.6
 

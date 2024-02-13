@@ -6,7 +6,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/dekunma/gin-books-test/models"
+	"github.com/dekunma/cpsc-519-project-backend/models"
 	"github.com/gin-gonic/gin"
 )
 
@@ -57,18 +57,18 @@ func UpdateBookById(c *gin.Context) {
 	var book models.Book
 
 	id := c.Param("id")
-	
+
 	if err := getBookByIdFromDB(&book, id); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-  var request models.UpdateBookRequest 
-  if err := c.ShouldBindJSON(&request); err != nil {
-    c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-  }
-  
-  models.DB.Model(&book).Updates(request)
+	var request models.UpdateBookRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	}
+
+	models.DB.Model(&book).Updates(request)
 
 	c.JSON(http.StatusOK, gin.H{"data": book})
 }

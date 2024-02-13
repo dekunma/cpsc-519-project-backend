@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/dekunma/gin-books-test/controllers"
-	"github.com/dekunma/gin-books-test/models"
+	"github.com/dekunma/cpsc-519-project-backend/controllers"
+	"github.com/dekunma/cpsc-519-project-backend/models"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"net/http"
