@@ -29,27 +29,27 @@ func loadEnvFile() {
 
 //	@title		API for CPSC 519 Project Group 6
 //	@version	1.0
-
+//
 // @BasePath	/v1
 func main() {
 	loadEnvFile()
-
-	r := gin.Default()
-
 	models.ConnectDatabase()
 
+	r := gin.Default()
 	r.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"data": "Hello World!"})
 	})
 
+	v1 := r.Group("/v1")
+
 	// Swagger ui
-	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	v1.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// As an example from https://blog.logrocket.com/rest-api-golang-gin-gorm/
-	r.GET("/books", controllers.FindBooks)
-	r.POST("/books", controllers.CreateBook)
-	r.GET("books/:id", controllers.GetBookById)
-	r.PATCH("books/:id", controllers.UpdateBookById)
+	v1.GET("/books", controllers.FindBooks)
+	v1.POST("/books", controllers.CreateBook)
+	v1.GET("books/:id", controllers.GetBookById)
+	v1.PATCH("books/:id", controllers.UpdateBookById)
 
 	PORT := os.Getenv("PORT")
 	_ = r.Run(":" + PORT)
