@@ -1,0 +1,81 @@
+basePath: /v1
+definitions:
+  models.Book:
+    properties:
+      author:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+    type: object
+info:
+  contact: {}
+  title: API for CPSC 519 Project Group 6
+  version: "1.0"
+paths:
+  /books:
+    get:
+      description: Responds with the list of all books as JSON.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Book'
+            type: array
+      summary: Get books array
+      tags:
+      - books
+    post:
+      description: Responds with the book created
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Book'
+      summary: Create a single book
+      tags:
+      - books
+  /books/{id}:
+    get:
+      description: Responds with the book
+      parameters:
+      - description: search book by its id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Book'
+      summary: Get a single book by its id
+      tags:
+      - books
+    patch:
+      description: Responds with the updated book
+      parameters:
+      - description: search book by its id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Book'
+      summary: Update a single book by its id
+      tags:
+      - books
+swagger: "2.0"

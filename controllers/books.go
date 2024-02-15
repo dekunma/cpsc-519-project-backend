@@ -10,8 +10,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// GET /books
-// Get all books
+// FindBooks             godoc
+//
+//	@Summary		Get books array
+//	@Description	Responds with the list of all books as JSON.
+//	@Tags			books
+//	@Produce		json
+//	@Success		200	{array}	models.Book
+//	@Router			/books [get]
 func FindBooks(c *gin.Context) {
 	var books []models.Book
 	models.DB.Find(&books)
@@ -19,6 +25,14 @@ func FindBooks(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": books})
 }
 
+// CreateBook             godoc
+//
+//	@Summary		Create a single book
+//	@Description	Responds with the book created
+//	@Tags			books
+//	@Produce		json
+//	@Success		200	{object}	models.Book
+//	@Router			/books [post]
 func CreateBook(c *gin.Context) {
 	var request models.CreatBookRequest
 
@@ -41,6 +55,15 @@ func getBookByIdFromDB(book *models.Book, id string) error {
 	return nil
 }
 
+// GetBookById             godoc
+//
+//	@Summary		Get a single book by its id
+//	@Description	Responds with the book
+//	@Tags			books
+//	@Produce		json
+//	@Param			id	path		string	true	"search book by its id"
+//	@Success		200	{object}	models.Book
+//	@Router			/books/{id} [get]
 func GetBookById(c *gin.Context) {
 	var book models.Book
 
@@ -53,6 +76,15 @@ func GetBookById(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": book})
 }
 
+// UpdateBookById             godoc
+//
+//	@Summary		Update a single book by its id
+//	@Description	Responds with the updated book
+//	@Tags			books
+//	@Produce		json
+//	@Param			id	path		string	true	"search book by its id"
+//	@Success		200	{object}	models.Book
+//	@Router			/books/{id} [patch]
 func UpdateBookById(c *gin.Context) {
 	var book models.Book
 

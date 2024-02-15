@@ -3,9 +3,12 @@ package main
 import (
 	"fmt"
 	"github.com/dekunma/cpsc-519-project-backend/controllers"
+	_ "github.com/dekunma/cpsc-519-project-backend/docs"
 	"github.com/dekunma/cpsc-519-project-backend/models"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"net/http"
 	"os"
 )
@@ -24,6 +27,10 @@ func loadEnvFile() {
 	}
 }
 
+//	@title		API for CPSC 519 Project Group 6
+//	@version	1.0
+
+// @BasePath	/v1
 func main() {
 	loadEnvFile()
 
@@ -34,6 +41,9 @@ func main() {
 	r.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"data": "Hello World!"})
 	})
+
+	// Swagger ui
+	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// As an example from https://blog.logrocket.com/rest-api-golang-gin-gorm/
 	r.GET("/books", controllers.FindBooks)
