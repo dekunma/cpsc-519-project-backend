@@ -5,6 +5,7 @@ import (
 	"github.com/dekunma/cpsc-519-project-backend/cache"
 	"github.com/dekunma/cpsc-519-project-backend/controllers"
 	_ "github.com/dekunma/cpsc-519-project-backend/docs"
+	"github.com/dekunma/cpsc-519-project-backend/middleware"
 	"github.com/dekunma/cpsc-519-project-backend/models"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -36,6 +37,7 @@ func main() {
 	loadEnvFile()
 	models.ConnectDatabase()
 	cache.ConnectRedis()
+	middleware.SetupMiddleware()
 
 	r := gin.Default()
 	r.GET("/", func(c *gin.Context) {
@@ -52,6 +54,11 @@ func main() {
 	v1.POST("/books", controllers.CreateBook)
 	v1.GET("books/:id", controllers.GetBookById)
 	v1.PATCH("books/:id", controllers.UpdateBookById)
+
+	// users
+	v1.POST("/users/send-verification-code", controllers.SendVerificationCode)
+	v1.POST("/users/sign-up", controllers.SignUp)
+	v1.POST("/users/log-in", middleware.Auth.LoginHandler)
 
 	PORT := os.Getenv("PORT")
 	_ = r.Run(":" + PORT)

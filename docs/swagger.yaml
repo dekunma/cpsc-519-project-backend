@@ -78,4 +78,32 @@ paths:
       summary: Update a single book by its id
       tags:
       - books
+  /users/send-verification-code:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Send verification code to email
+      tags:
+      - users
+  /users/sign-up:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Sign up
+      tags:
+      - users
 swagger: "2.0"
