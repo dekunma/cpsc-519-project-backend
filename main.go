@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/dekunma/cpsc-519-project-backend/cache"
 	"github.com/dekunma/cpsc-519-project-backend/controllers"
 	_ "github.com/dekunma/cpsc-519-project-backend/docs"
 	"github.com/dekunma/cpsc-519-project-backend/models"
@@ -34,6 +35,7 @@ func loadEnvFile() {
 func main() {
 	loadEnvFile()
 	models.ConnectDatabase()
+	cache.ConnectRedis()
 
 	r := gin.Default()
 	r.GET("/", func(c *gin.Context) {
