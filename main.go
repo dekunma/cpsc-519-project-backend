@@ -57,6 +57,7 @@ func main() {
 
 	// users
 	v1.POST("/users/send-verification-code", controllers.SendVerificationCode)
+	v1.POST("/users/check-verification-code", controllers.CheckVerificationCode)
 	v1.POST("/users/sign-up", controllers.SignUp)
 	v1.POST("/users/log-in", middleware.Auth.LoginHandler)
 

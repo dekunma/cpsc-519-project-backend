@@ -11,6 +11,11 @@ type SendVerificationCodeRequest struct {
 	Email string `json:"email" binding:"required"`
 }
 
+type CheckVerificationCodeRequest struct {
+	Email            string `json:"email" binding:"required"`
+	VerificationCode string `json:"verification_code" binding:"required"`
+}
+
 type SignUpRequest struct {
 	Email            string `json:"email" binding:"required"`
 	Password         string `json:"password" binding:"required"`
