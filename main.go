@@ -25,6 +25,12 @@ func loadEnvFile() {
 	// Load the appropriate .env file
 	err := godotenv.Load(fmt.Sprintf(".env.%s", env_mode))
 	if err != nil {
+		fmt.Println("Error loading .env file "+env_mode+": ", err)
+	}
+
+	// Load the .env file
+	err = godotenv.Load(".env")
+	if err != nil {
 		fmt.Println("Error loading .env file: ", err)
 	}
 }
