@@ -5,6 +5,7 @@ import (
 	"github.com/dekunma/cpsc-519-project-backend/cache"
 	"github.com/dekunma/cpsc-519-project-backend/controllers"
 	_ "github.com/dekunma/cpsc-519-project-backend/docs"
+	"github.com/dekunma/cpsc-519-project-backend/exceptions"
 	"github.com/dekunma/cpsc-519-project-backend/middleware"
 	"github.com/dekunma/cpsc-519-project-backend/models"
 	"github.com/gin-gonic/gin"
@@ -46,6 +47,8 @@ func main() {
 	middleware.SetupMiddleware()
 
 	r := gin.Default()
+	r.Use(exceptions.ErrorHandler)
+
 	r.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"data": "Hello World!"})
 	})

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/dekunma/cpsc-519-project-backend/cache"
+	"github.com/dekunma/cpsc-519-project-backend/exceptions"
 	"github.com/dekunma/cpsc-519-project-backend/models"
 	"github.com/dekunma/cpsc-519-project-backend/service"
 	"github.com/gin-gonic/gin"
@@ -9,9 +10,27 @@ import (
 	"net/http"
 )
 
-func checkUserWithEmailExists(user *models.User, email string) bool {
+func checkUserWithEmailExists(user *models.User, email string, c *gin.Context) bool {
 	models.DB.Where("email = ?", email).Find(&user)
-	return user.ID != 0
+	if user.ID != 0 {
+		c.AbortWithStatusJSON(http.StatusBadRequest, exceptions.CustomError{
+			Code:    exceptions.CodeEmailAlreadyExists,
+			Message: "User already exists",
+		})
+		return true
+	}
+	return false
+}
+
+func bindRequestToJSON(request any, c *gin.Context) bool {
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, exceptions.CustomError{
+			Code:    exceptions.CodeParamInvalid,
+			Message: err.Error(),
+		})
+		return false
+	}
+	return true
 }
 
 // SendVerificationCode godoc
@@ -25,22 +44,22 @@ func checkUserWithEmailExists(user *models.User, email string) bool {
 func SendVerificationCode(c *gin.Context) {
 	var user models.User
 	var request models.SendVerificationCodeRequest
-	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+	if !bindRequestToJSON(&request, c) {
 		return
 	}
 
 	email := request.Email
-	if checkUserWithEmailExists(&user, email) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Email already exists"})
+	if checkUserWithEmailExists(&user, email, c) {
 		return
 	}
 
 	code := cache.RedisSetVerificationCode(email)
 
 	if err := service.SendVerificationCode(code, email); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send verification code"})
-		return
+		c.AbortWithStatusJSON(http.StatusInternalServerError, exceptions.CustomError{
+			Code:    exceptions.CodeSendEmailFailed,
+			Message: "Failed to send verification code",
+		})
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Verification code sent"})
@@ -56,8 +75,7 @@ func SendVerificationCode(c *gin.Context) {
 //	@Router		/users/check-verification-code [post]
 func CheckVerificationCode(c *gin.Context) {
 	var request models.CheckVerificationCodeRequest
-	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+	if !bindRequestToJSON(&request, c) {
 		return
 	}
 
@@ -67,7 +85,10 @@ func CheckVerificationCode(c *gin.Context) {
 	if cache.RedisCheckVerificationCode(email, code) {
 		c.JSON(http.StatusOK, gin.H{"message": "Verification code is valid"})
 	} else {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid verification code"})
+		c.AbortWithStatusJSON(http.StatusBadRequest, exceptions.CustomError{
+			Code:    exceptions.CodeVerificationCodeInvalid,
+			Message: "Invalid verification code",
+		})
 	}
 }
 
@@ -81,8 +102,7 @@ func CheckVerificationCode(c *gin.Context) {
 //	@Router		/users/sign-up [post]
 func SignUp(c *gin.Context) {
 	var request models.SignUpRequest
-	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+	if !bindRequestToJSON(&request, c) {
 		return
 	}
 
@@ -90,16 +110,17 @@ func SignUp(c *gin.Context) {
 	code := request.VerificationCode
 
 	if !cache.RedisCheckVerificationCode(email, code) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid verification code"})
-		return
+		c.AbortWithStatusJSON(http.StatusBadRequest, exceptions.CustomError{
+			Code:    exceptions.CodeVerificationCodeInvalid,
+			Message: "Invalid verification code",
+		})
 	}
 
 	password, _ := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
 	user := models.User{Email: email, Password: string(password)}
 
 	// check again to prevent from possible attacks
-	if checkUserWithEmailExists(&user, email) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Email already exists"})
+	if checkUserWithEmailExists(&user, email, c) {
 		return
 	}
 
