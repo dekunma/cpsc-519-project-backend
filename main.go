@@ -60,19 +60,26 @@ func main() {
 	v1.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// As an example from https://blog.logrocket.com/rest-api-golang-gin-gorm/
-	v1.GET("/books", controllers.FindBooks)
-	v1.POST("/books", controllers.CreateBook)
-	v1.GET("books/:id", controllers.GetBookById)
-	v1.PATCH("books/:id", controllers.UpdateBookById)
+	books := v1.Group("/books")
+	{
+		books.GET("/", controllers.FindBooks)
+		books.POST("/", controllers.CreateBook)
+		books.GET("/:id", controllers.GetBookById)
+		books.PATCH("/:id", controllers.UpdateBookById)
+	}
 
 	// users
-	v1.POST("/users/send-verification-code", controllers.SendVerificationCode)
-	v1.POST("/users/check-verification-code", controllers.CheckVerificationCode)
-	v1.POST("/users/sign-up", controllers.SignUp)
-	v1.POST("/users/log-in", middleware.Auth.LoginHandler)
-	v1.Use(authMiddleWare.MiddlewareFunc())
+	users := v1.Group("/users")
 	{
-		v1.PATCH("/users/update-name", controllers.UpdateName)
+		users.POST("send-verification-code", controllers.SendVerificationCode)
+		users.POST("check-verification-code", controllers.CheckVerificationCode)
+		users.POST("sign-up", controllers.SignUp)
+		users.POST("log-in", middleware.Auth.LoginHandler)
+	}
+
+	users.Use(authMiddleWare.MiddlewareFunc())
+	{
+		users.PATCH("update-name", controllers.UpdateName)
 	}
 
 	PORT := os.Getenv("PORT")
