@@ -17,16 +17,16 @@ import (
 )
 
 func loadEnvFile() {
-	env_mode := os.Getenv("GIN_ENV_MODE")
+	envMode := os.Getenv("GIN_ENV_MODE")
 
-	if env_mode == "" {
-		env_mode = "local" // Set a default if not specified
+	if envMode == "" {
+		envMode = "local" // Set a default if not specified
 	}
 
 	// Load the appropriate .env file
-	err := godotenv.Load(fmt.Sprintf(".env.%s", env_mode))
+	err := godotenv.Load(fmt.Sprintf(".env.%s", envMode))
 	if err != nil {
-		fmt.Println("Error loading .env file "+env_mode+": ", err)
+		fmt.Println("Error loading .env file "+envMode+": ", err)
 	}
 
 	// Load the .env file
