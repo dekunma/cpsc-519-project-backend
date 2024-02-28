@@ -11,7 +11,8 @@ import (
 	"net/http"
 )
 
-func abortIfUserWithEmailExists(user *models.User, email string, c *gin.Context) bool {
+func abortIfUserWithEmailExists(email string, c *gin.Context) bool {
+	user := &models.User{}
 	models.DB.Where("email = ?", email).Find(&user)
 	if user.ID != 0 {
 		c.AbortWithStatusJSON(http.StatusBadRequest, exceptions.CustomError{
@@ -43,14 +44,13 @@ func bindRequestToJSON(request any, c *gin.Context) bool {
 //	@Success	200	{object}	string
 //	@Router		/users/send-verification-code [post]
 func SendVerificationCode(c *gin.Context) {
-	var user models.User
 	var request models.SendVerificationCodeRequest
 	if !bindRequestToJSON(&request, c) {
 		return
 	}
 
 	email := request.Email
-	if abortIfUserWithEmailExists(&user, email, c) {
+	if abortIfUserWithEmailExists(email, c) {
 		return
 	}
 
@@ -118,17 +118,25 @@ func SignUp(c *gin.Context) {
 	}
 
 	password, _ := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
-	user := models.User{Email: email, Password: string(password)}
 
 	// check again to prevent from possible attacks
-	if abortIfUserWithEmailExists(&user, email, c) {
+	if abortIfUserWithEmailExists(email, c) {
 		return
 	}
 
+	user := models.User{Email: email, Password: string(password)}
 	models.DB.Create(&user)
 	c.JSON(http.StatusOK, gin.H{"message": "User created"})
 }
 
+// UpdateName godoc
+//
+//	@Summary	Update a user's name
+//	@Tags		users
+//	@Accept		json
+//	@Produce	json
+//	@Success	200	{object}	string
+//	@Router		/users/update-name [patch]
 func UpdateName(c *gin.Context) {
 	var request models.UpdateNameRequest
 	if !bindRequestToJSON(&request, c) {
