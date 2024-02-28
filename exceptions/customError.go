@@ -8,6 +8,7 @@ const (
 	//user triggered errors
 	CodeEmailAlreadyExists      = 2001
 	CodeVerificationCodeInvalid = 2002
+	CodeUserNotFound            = 2003
 
 	// service triggered errors
 	CodeSendEmailFailed = 3001

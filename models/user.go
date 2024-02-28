@@ -5,6 +5,7 @@ type User struct {
 	Email    string `json:"email" gorm:"unique"`
 	Password string `json:"password"`
 	Avatar   string `json:"avatar"`
+	Name     string `json:"name"`
 }
 
 type SendVerificationCodeRequest struct {
@@ -20,4 +21,8 @@ type SignUpRequest struct {
 	Email            string `json:"email" binding:"required"`
 	Password         string `json:"password" binding:"required"`
 	VerificationCode string `json:"verification_code"`
+}
+
+type UpdateNameRequest struct {
+	Name string `json:"name" binding:"required"`
 }

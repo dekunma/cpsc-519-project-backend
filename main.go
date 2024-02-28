@@ -45,6 +45,7 @@ func main() {
 	models.ConnectDatabase()
 	cache.ConnectRedis()
 	middleware.SetupMiddleware()
+	authMiddleWare, _ := middleware.GetAuthMiddleware()
 
 	r := gin.Default()
 	r.Use(exceptions.ErrorHandler)
@@ -69,6 +70,10 @@ func main() {
 	v1.POST("/users/check-verification-code", controllers.CheckVerificationCode)
 	v1.POST("/users/sign-up", controllers.SignUp)
 	v1.POST("/users/log-in", middleware.Auth.LoginHandler)
+	v1.Use(authMiddleWare.MiddlewareFunc())
+	{
+		v1.PATCH("/users/update-name", controllers.UpdateName)
+	}
 
 	PORT := os.Getenv("PORT")
 	_ = r.Run(":" + PORT)

@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/dekunma/cpsc-519-project-backend/cache"
 	"github.com/dekunma/cpsc-519-project-backend/exceptions"
 	"github.com/dekunma/cpsc-519-project-backend/models"
@@ -10,7 +11,7 @@ import (
 	"net/http"
 )
 
-func checkUserWithEmailExists(user *models.User, email string, c *gin.Context) bool {
+func abortIfUserWithEmailExists(user *models.User, email string, c *gin.Context) bool {
 	models.DB.Where("email = ?", email).Find(&user)
 	if user.ID != 0 {
 		c.AbortWithStatusJSON(http.StatusBadRequest, exceptions.CustomError{
@@ -49,7 +50,7 @@ func SendVerificationCode(c *gin.Context) {
 	}
 
 	email := request.Email
-	if checkUserWithEmailExists(&user, email, c) {
+	if abortIfUserWithEmailExists(&user, email, c) {
 		return
 	}
 
@@ -120,10 +121,33 @@ func SignUp(c *gin.Context) {
 	user := models.User{Email: email, Password: string(password)}
 
 	// check again to prevent from possible attacks
-	if checkUserWithEmailExists(&user, email, c) {
+	if abortIfUserWithEmailExists(&user, email, c) {
 		return
 	}
 
 	models.DB.Create(&user)
 	c.JSON(http.StatusOK, gin.H{"message": "User created"})
+}
+
+func UpdateName(c *gin.Context) {
+	var request models.UpdateNameRequest
+	if !bindRequestToJSON(&request, c) {
+		return
+	}
+
+	var user models.User
+	email := jwt.ExtractClaims(c)["email"].(string)
+
+	models.DB.Where("email = ?", email).Find(&user)
+	if user.ID == 0 {
+		c.AbortWithStatusJSON(http.StatusBadRequest, exceptions.CustomError{
+			Code:    exceptions.CodeUserNotFound,
+			Message: "User not found",
+		})
+		return
+	}
+
+	user.Name = request.Name
+	models.DB.Save(&user)
+	c.JSON(http.StatusOK, gin.H{"message": "Name updated"})
 }
