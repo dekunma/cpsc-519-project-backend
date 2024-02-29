@@ -21,6 +21,7 @@ func GetAuthMiddleware() (*jwt.GinJWTMiddleware, error) {
 			if v, ok := data.(*models.User); ok {
 				return jwt.MapClaims{
 					identityKey: v.Email,
+					"name":      v.Name,
 				}
 			}
 			return jwt.MapClaims{}
@@ -29,6 +30,7 @@ func GetAuthMiddleware() (*jwt.GinJWTMiddleware, error) {
 			claims := jwt.ExtractClaims(c)
 			return &models.User{
 				Email: claims[identityKey].(string),
+				Name:  claims[identityKey].(string),
 			}
 		},
 		Authenticator: func(c *gin.Context) (interface{}, error) {
@@ -46,6 +48,7 @@ func GetAuthMiddleware() (*jwt.GinJWTMiddleware, error) {
 
 			return &models.User{
 				Email: userID,
+				Name:  user.Name,
 			}, nil
 		},
 		Unauthorized: func(c *gin.Context, code int, message string) {
