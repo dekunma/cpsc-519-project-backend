@@ -129,7 +129,7 @@ func SignUp(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "User created"})
 }
 
-// UpdateName godoc
+// UpdateProfile godoc
 //
 //	@Summary	Update a user's name
 //	@Tags		users
@@ -137,8 +137,8 @@ func SignUp(c *gin.Context) {
 //	@Produce	json
 //	@Success	200	{object}	string
 //	@Router		/users/update-name [patch]
-func UpdateName(c *gin.Context) {
-	var request models.UpdateNameRequest
+func UpdateProfile(c *gin.Context) {
+	var request models.UpdateProfileRequest
 	if !bindRequestToJSON(&request, c) {
 		return
 	}
@@ -155,7 +155,14 @@ func UpdateName(c *gin.Context) {
 		return
 	}
 
-	user.Name = request.Name
+	if request.Name != "" {
+		user.Name = request.Name
+	}
+
+	if request.Avatar != "" {
+		user.Avatar = request.Avatar
+	}
+
 	models.DB.Save(&user)
-	c.JSON(http.StatusOK, gin.H{"message": "Name updated"})
+	c.JSON(http.StatusOK, gin.H{"message": "Profile updated"})
 }

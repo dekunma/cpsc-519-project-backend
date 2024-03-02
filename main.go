@@ -80,7 +80,7 @@ func main() {
 
 	users.Use(authMiddleWare.MiddlewareFunc())
 	{
-		users.PATCH("update-name", controllers.UpdateName)
+		users.PATCH("update-profile", controllers.UpdateProfile)
 	}
 
 	PORT := os.Getenv("PORT")

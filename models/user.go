@@ -23,6 +23,7 @@ type SignUpRequest struct {
 	VerificationCode string `json:"verification_code"`
 }
 
-type UpdateNameRequest struct {
-	Name string `json:"name" binding:"required"`
+type UpdateProfileRequest struct {
+	Name   string `json:"name"`
+	Avatar string `json:"avatar"`
 }
