@@ -75,6 +75,7 @@ func main() {
 		users.POST("check-verification-code", controllers.CheckVerificationCode)
 		users.POST("sign-up", controllers.SignUp)
 		users.POST("log-in", middleware.Auth.LoginHandler)
+		users.GET("refresh-token", middleware.Auth.RefreshHandler)
 	}
 
 	users.Use(authMiddleWare.MiddlewareFunc())

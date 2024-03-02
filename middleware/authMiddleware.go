@@ -57,6 +57,12 @@ func GetAuthMiddleware() (*jwt.GinJWTMiddleware, error) {
 				"message": message,
 			})
 		},
+		RefreshResponse: func(c *gin.Context, code int, message string, time time.Time) {
+			c.JSON(code, gin.H{
+				"code":  code,
+				"token": message,
+			})
+		},
 		// TokenLookup is a string in the form of "<source>:<name>" that is used
 		// to extract token from the request.
 		// Optional. Default value "header:Authorization".
