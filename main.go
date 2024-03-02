@@ -81,6 +81,7 @@ func main() {
 	users.Use(authMiddleWare.MiddlewareFunc())
 	{
 		users.PATCH("update-profile", controllers.UpdateProfile)
+		users.GET("profile", controllers.GetOwnProfile)
 	}
 
 	PORT := os.Getenv("PORT")

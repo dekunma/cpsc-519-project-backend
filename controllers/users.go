@@ -166,3 +166,27 @@ func UpdateProfile(c *gin.Context) {
 	models.DB.Save(&user)
 	c.JSON(http.StatusOK, gin.H{"message": "Profile updated"})
 }
+
+// GetOwnProfile godoc
+//
+//	@Summary	Get user's own profile
+//	@Tags		users
+//	@Accept		json
+//	@Produce	json
+//	@Success	200	{object}	models.User
+//	@Router		/users/profile [get]
+func GetOwnProfile(c *gin.Context) {
+	email := jwt.ExtractClaims(c)["email"].(string)
+	var user models.User
+	models.DB.Where("email = ?", email).Find(&user)
+	if user.ID == 0 {
+		c.AbortWithStatusJSON(http.StatusBadRequest, exceptions.CustomError{
+			Code:    exceptions.CodeUserNotFound,
+			Message: "User not found",
+		})
+		return
+	}
+
+	user.Password = ""
+	c.JSON(http.StatusOK, user)
+}
