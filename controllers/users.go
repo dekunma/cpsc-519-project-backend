@@ -1,14 +1,20 @@
 package controllers
 
 import (
+	"fmt"
 	jwt "github.com/appleboy/gin-jwt/v2"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"github.com/dekunma/cpsc-519-project-backend/cache"
 	"github.com/dekunma/cpsc-519-project-backend/exceptions"
 	"github.com/dekunma/cpsc-519-project-backend/models"
 	"github.com/dekunma/cpsc-519-project-backend/service"
+	"github.com/dekunma/cpsc-519-project-backend/utils"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
+	"os"
 )
 
 func abortIfUserWithEmailExists(email string, c *gin.Context) bool {
@@ -33,6 +39,10 @@ func bindRequestToJSON(request any, c *gin.Context) bool {
 		return false
 	}
 	return true
+}
+
+func extractEmailFromJWT(c *gin.Context) string {
+	return jwt.ExtractClaims(c)["email"].(string)
 }
 
 // SendVerificationCode godoc
@@ -144,7 +154,7 @@ func UpdateProfile(c *gin.Context) {
 	}
 
 	var user models.User
-	email := jwt.ExtractClaims(c)["email"].(string)
+	email := extractEmailFromJWT(c)
 
 	models.DB.Where("email = ?", email).Find(&user)
 	if user.ID == 0 {
@@ -176,7 +186,7 @@ func UpdateProfile(c *gin.Context) {
 //	@Success	200	{object}	models.User
 //	@Router		/users/profile [get]
 func GetOwnProfile(c *gin.Context) {
-	email := jwt.ExtractClaims(c)["email"].(string)
+	email := extractEmailFromJWT(c)
 	var user models.User
 	models.DB.Where("email = ?", email).Find(&user)
 	if user.ID == 0 {
@@ -189,4 +199,48 @@ func GetOwnProfile(c *gin.Context) {
 
 	user.Password = ""
 	c.JSON(http.StatusOK, user)
+}
+
+// UploadAvatar godoc
+//
+//	@Summary	Upload avatar
+//	@Tags		users
+//	@Accept		multipart/form-data
+//	@Produce	json
+//	@Success	200	{object}	string
+//	@Router		/users/upload-avatar [post]
+func UploadAvatar(c *gin.Context) {
+	awsSession := c.MustGet("awsSession").(*session.Session)
+	uploader := s3manager.NewUploader(awsSession)
+	bucketName := os.Getenv("AWS_BUCKET_NAME")
+	file, header, err := c.Request.FormFile("avatar")
+
+	filename := utils.GenerateRandomStringWithLength(10) + header.Filename
+
+	//upload to the s3 bucket
+	_, err = uploader.Upload(&s3manager.UploadInput{
+		Bucket: aws.String(bucketName),
+		//ACL:    aws.String("public-read"),
+		Key:  aws.String(filename),
+		Body: file,
+	})
+
+	if err != nil {
+		fmt.Println("AWS S3 upload error:")
+		fmt.Println(err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, exceptions.CustomError{
+			Code:    exceptions.CodeUploadFailed,
+			Message: "Failed to upload file",
+		})
+
+		return
+	}
+	filepath := "https://" + bucketName + "." + "s3" + ".amazonaws.com/" + filename
+
+	email := extractEmailFromJWT(c)
+	models.DB.Model(&models.User{}).Where("email = ?", email).Update("avatar", filepath)
+
+	c.JSON(http.StatusOK, gin.H{
+		"filepath": filepath,
+	})
 }

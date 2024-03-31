@@ -44,11 +44,15 @@ func main() {
 	loadEnvFile()
 	models.ConnectDatabase()
 	cache.ConnectRedis()
-	middleware.SetupMiddleware()
-	authMiddleWare, _ := middleware.GetAuthMiddleware()
 
 	r := gin.Default()
 	r.Use(exceptions.ErrorHandler)
+
+	awsSession := middleware.ConnectAws()
+	r.Use(func(c *gin.Context) {
+		c.Set("awsSession", awsSession)
+		c.Next()
+	})
 
 	r.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"data": "Hello World!"})
@@ -68,6 +72,7 @@ func main() {
 		books.PATCH("/:id", controllers.UpdateBookById)
 	}
 
+	middleware.SetupMiddleware()
 	// users
 	users := v1.Group("/users")
 	{
@@ -78,10 +83,12 @@ func main() {
 		users.GET("refresh-token", middleware.Auth.RefreshHandler)
 	}
 
-	users.Use(authMiddleWare.MiddlewareFunc())
+	// authenticated-only routes
+	users.Use(middleware.Auth.MiddlewareFunc())
 	{
 		users.PATCH("update-profile", controllers.UpdateProfile)
 		users.GET("profile", controllers.GetOwnProfile)
+		users.POST("upload-avatar", controllers.UploadAvatar)
 	}
 
 	PORT := os.Getenv("PORT")
