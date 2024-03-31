@@ -15,8 +15,9 @@ func ConnectDatabase() {
 	DB_USERNAME := os.Getenv("DB_USERNAME")
 	DB_PASSWORD := os.Getenv("DB_PASSWORD")
 	DB_ENDPOINT := os.Getenv("DB_ENDPOINT")
+	DB_NAME := os.Getenv("DB_NAME")
 
-	DB_URL := fmt.Sprintf("%s:%s@tcp(%s:3306)/full_stack?charset=utf8mb4&parseTime=True&loc=Local", DB_USERNAME, DB_PASSWORD, DB_ENDPOINT)
+	DB_URL := fmt.Sprintf("%s:%s@tcp(%s:3306)/%s?charset=utf8mb4&parseTime=True&loc=Local", DB_USERNAME, DB_PASSWORD, DB_ENDPOINT, DB_NAME)
 	database, err := gorm.Open(mysql.Open(DB_URL), &gorm.Config{})
 
 	if err != nil {
