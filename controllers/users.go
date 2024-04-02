@@ -71,6 +71,8 @@ func SendVerificationCode(c *gin.Context) {
 			Code:    exceptions.CodeSendEmailFailed,
 			Message: "Failed to send verification code",
 		})
+
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Verification code sent"})
