@@ -95,8 +95,8 @@ func main() {
 	friendships := v1.Group("/friendships")
 	friendships.Use(middleware.Auth.MiddlewareFunc())
 	{
-		friendships.POST("create-friend-invitation", controllers.CreateFriendInvitation)
-		friendships.GET("get-all-friends", controllers.GetAllFriends)
+		friendships.POST("friend-invitations", controllers.CreateFriendInvitation)
+		friendships.GET("all-friends", controllers.GetAllFriends)
 	}
 
 	PORT := os.Getenv("PORT")
