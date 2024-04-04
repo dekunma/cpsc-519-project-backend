@@ -91,6 +91,14 @@ func main() {
 		users.POST("upload-avatar", controllers.UploadAvatar)
 	}
 
+	// friendships
+	friendships := v1.Group("/friendships")
+	friendships.Use(middleware.Auth.MiddlewareFunc())
+	{
+		friendships.POST("create-friend-invitation", controllers.CreateFriendInvitation)
+		friendships.GET("get-all-friends", controllers.GetAllFriends)
+	}
+
 	PORT := os.Getenv("PORT")
 	_ = r.Run(":" + PORT)
 }
