@@ -42,7 +42,7 @@ func GetAuthMiddleware() (*jwt.GinJWTMiddleware, error) {
 			password := loginVals.Password
 			var user models.User
 
-			if err := models.DB.Where("email = ?", userID).First(&user).Error; err != nil && bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)) != nil {
+			if err := models.DB.Where("email = ?", userID).First(&user).Error; err != nil || bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)) != nil {
 				return nil, jwt.ErrFailedAuthentication
 			}
 
