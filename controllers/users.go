@@ -30,17 +30,6 @@ func abortIfUserWithEmailExists(email string, c *gin.Context) bool {
 	return false
 }
 
-func bindRequestToJSON(request any, c *gin.Context) bool {
-	if err := c.ShouldBindJSON(&request); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, exceptions.CustomError{
-			Code:    exceptions.CodeParamInvalid,
-			Message: err.Error(),
-		})
-		return false
-	}
-	return true
-}
-
 func extractEmailFromJWT(c *gin.Context) string {
 	return jwt.ExtractClaims(c)["email"].(string)
 }
@@ -55,7 +44,7 @@ func extractEmailFromJWT(c *gin.Context) string {
 //	@Router		/users/send-verification-code [post]
 func SendVerificationCode(c *gin.Context) {
 	var request models.SendVerificationCodeRequest
-	if !bindRequestToJSON(&request, c) {
+	if !utils.BindRequestToJSON(&request, c) {
 		return
 	}
 
@@ -88,7 +77,7 @@ func SendVerificationCode(c *gin.Context) {
 //	@Router		/users/check-verification-code [post]
 func CheckVerificationCode(c *gin.Context) {
 	var request models.CheckVerificationCodeRequest
-	if !bindRequestToJSON(&request, c) {
+	if !utils.BindRequestToJSON(&request, c) {
 		return
 	}
 
@@ -115,7 +104,7 @@ func CheckVerificationCode(c *gin.Context) {
 //	@Router		/users/sign-up [post]
 func SignUp(c *gin.Context) {
 	var request models.SignUpRequest
-	if !bindRequestToJSON(&request, c) {
+	if !utils.BindRequestToJSON(&request, c) {
 		return
 	}
 
@@ -151,7 +140,7 @@ func SignUp(c *gin.Context) {
 //	@Router		/users/update-name [patch]
 func UpdateProfile(c *gin.Context) {
 	var request models.UpdateProfileRequest
-	if !bindRequestToJSON(&request, c) {
+	if !utils.BindRequestToJSON(&request, c) {
 		return
 	}
 

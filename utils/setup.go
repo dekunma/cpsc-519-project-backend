@@ -1,7 +1,10 @@
 package utils
 
 import (
+	"github.com/dekunma/cpsc-519-project-backend/exceptions"
+	"github.com/gin-gonic/gin"
 	"math/rand"
+	"net/http"
 )
 
 func GenerateRandomDigitStringWithLength(length int) string {
@@ -36,4 +39,15 @@ func GenerateRandomStringWithLength(n int) string {
 	}
 
 	return string(b)
+}
+
+func BindRequestToJSON(request any, c *gin.Context) bool {
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, exceptions.CustomError{
+			Code:    exceptions.CodeParamInvalid,
+			Message: err.Error(),
+		})
+		return false
+	}
+	return true
 }
