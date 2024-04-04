@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"fmt"
-	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
@@ -30,10 +29,6 @@ func abortIfUserWithEmailExists(email string, c *gin.Context) bool {
 	return false
 }
 
-func extractEmailFromJWT(c *gin.Context) string {
-	return jwt.ExtractClaims(c)["email"].(string)
-}
-
 // SendVerificationCode godoc
 //
 //	@Summary	Send verification code to email
@@ -44,7 +39,7 @@ func extractEmailFromJWT(c *gin.Context) string {
 //	@Router		/users/send-verification-code [post]
 func SendVerificationCode(c *gin.Context) {
 	var request models.SendVerificationCodeRequest
-	if !utils.BindRequestToJSON(&request, c) {
+	if !bindRequestToJSON(&request, c) {
 		return
 	}
 
@@ -77,7 +72,7 @@ func SendVerificationCode(c *gin.Context) {
 //	@Router		/users/check-verification-code [post]
 func CheckVerificationCode(c *gin.Context) {
 	var request models.CheckVerificationCodeRequest
-	if !utils.BindRequestToJSON(&request, c) {
+	if !bindRequestToJSON(&request, c) {
 		return
 	}
 
@@ -104,7 +99,7 @@ func CheckVerificationCode(c *gin.Context) {
 //	@Router		/users/sign-up [post]
 func SignUp(c *gin.Context) {
 	var request models.SignUpRequest
-	if !utils.BindRequestToJSON(&request, c) {
+	if !bindRequestToJSON(&request, c) {
 		return
 	}
 
@@ -140,7 +135,7 @@ func SignUp(c *gin.Context) {
 //	@Router		/users/update-name [patch]
 func UpdateProfile(c *gin.Context) {
 	var request models.UpdateProfileRequest
-	if !utils.BindRequestToJSON(&request, c) {
+	if !bindRequestToJSON(&request, c) {
 		return
 	}
 
