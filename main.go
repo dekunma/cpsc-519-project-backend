@@ -99,6 +99,15 @@ func main() {
 		friendships.GET("all-friends", controllers.GetAllFriends)
 	}
 
+	// posts
+	posts := v1.Group("/posts")
+	posts.Use(middleware.Auth.MiddlewareFunc())
+	{
+		posts.POST("create-post", controllers.CreatePost)
+		posts.GET("get-all-posts", controllers.GetAllPostsForUserAndFriends)
+		posts.GET("get-post-details/:id", controllers.GetPostDetails)
+	}
+
 	PORT := os.Getenv("PORT")
 	_ = r.Run(":" + PORT)
 }

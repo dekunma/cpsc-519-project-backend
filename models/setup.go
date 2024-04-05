@@ -24,7 +24,7 @@ func ConnectDatabase() {
 		panic("Failed to connect to database: " + DB_URL)
 	}
 
-	err = database.AutoMigrate(&Book{}, &User{}, &Friendship{})
+	err = database.AutoMigrate(&Book{}, &User{}, &Friendship{}, &Post{})
 
 	if err != nil {
 		return
