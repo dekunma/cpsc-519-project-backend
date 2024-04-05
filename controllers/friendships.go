@@ -103,6 +103,10 @@ func GetFriendshipByEmail(c *gin.Context) {
 		}
 	}
 
+	if searchedUser == currentUser {
+		requestStatus = "yourself"
+	}
+
 	searchedUser.Password = ""
 	c.JSON(http.StatusOK, gin.H{"user": searchedUser, "request_status": requestStatus})
 }
