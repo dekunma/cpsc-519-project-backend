@@ -69,3 +69,44 @@ func GetAllFriends(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"friends": friends})
 }
+
+func GetFriendshipByEmail(c *gin.Context) {
+	email := c.Param("email")
+
+	searchedUser := models.User{}
+	models.DB.Where("email = ?", email).Find(&searchedUser)
+	if searchedUser.ID == 0 {
+		c.AbortWithStatusJSON(http.StatusBadRequest, exceptions.CustomError{
+			Code:    exceptions.CodeUserNotFound,
+			Message: "No user found with the given email",
+		})
+		return
+	}
+
+	currentUserEmail := extractEmailFromJWT(c)
+	currentUser := models.User{}
+	models.DB.Where("email = ?", currentUserEmail).Find(&currentUser)
+
+	var friendShipsOfCurrentUser []models.Friendship
+	currentUserId := currentUser.ID
+
+	models.DB.Where("(user_id = ? or friend_id = ?)", currentUserId, currentUserId).Find(&friendShipsOfCurrentUser)
+	requestStatus := "unsent"
+	searchedUserId := searchedUser.ID
+	for _, friendship := range friendShipsOfCurrentUser {
+		if friendship.UserID == searchedUserId || friendship.FriendID == searchedUserId {
+			if friendship.Accepted {
+				requestStatus = "accepted"
+			} else {
+				requestStatus = "sent"
+			}
+		}
+	}
+
+	if searchedUser == currentUser {
+		requestStatus = "yourself"
+	}
+
+	searchedUser.Password = ""
+	c.JSON(http.StatusOK, gin.H{"user": searchedUser, "request_status": requestStatus})
+}
