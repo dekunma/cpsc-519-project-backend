@@ -95,9 +95,9 @@ func main() {
 	friendships := v1.Group("/friendships")
 	friendships.Use(middleware.Auth.MiddlewareFunc())
 	{
+		friendships.GET("email/:email", controllers.GetFriendshipByEmail)
 		friendships.POST("friend-invitations", controllers.CreateFriendInvitation)
 		friendships.GET("all-friends", controllers.GetAllFriends)
-		friendships.GET("by-email", controllers.GetFriendshipByEmail)
 	}
 
 	// posts

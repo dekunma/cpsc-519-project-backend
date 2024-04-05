@@ -72,13 +72,10 @@ func GetAllFriends(c *gin.Context) {
 }
 
 func GetFriendshipByEmail(c *gin.Context) {
-	var request models.GetFriendshipByEmailRequest
-	if !bindRequestToJSON(&request, c) {
-		return
-	}
+	email := c.Param("email")
 
 	searchedUser := models.User{}
-	models.DB.Where("email = ?", request.Email).Find(&searchedUser)
+	models.DB.Where("email = ?", email).Find(&searchedUser)
 	if searchedUser.ID == 0 {
 		c.AbortWithStatusJSON(http.StatusBadRequest, exceptions.CustomError{
 			Code:    exceptions.CodeUserNotFound,
