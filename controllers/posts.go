@@ -132,7 +132,7 @@ func UploadPostImage(c *gin.Context) {
 //	@Success	200	{object}	string
 //	@Router		/posts/get-post-images [get]
 func GetPostImages(c *gin.Context) {
-	postIDStr := c.PostForm("post_id")
+	postIDStr := c.Query("post_id")
 	if postIDStr == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Post ID is required"})
 		return
