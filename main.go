@@ -104,6 +104,7 @@ func main() {
 	posts.Use(middleware.Auth.MiddlewareFunc())
 	{
 		posts.POST("create-post", controllers.CreatePost)
+		posts.POST("upload-post-image", controllers.UploadPostImage)
 		posts.GET("get-all-posts", controllers.GetAllPostsForUserAndFriends)
 		posts.GET("get-post-details/:id", controllers.GetPostDetails)
 	}
