@@ -10,3 +10,7 @@ type CreateFriendInvitationRequest struct {
 	UserEmail   string `json:"user_email"`
 	FriendEmail string `json:"friend_email"`
 }
+
+type GetFriendshipByEmailRequest struct {
+	Email string `json:"email"`
+}

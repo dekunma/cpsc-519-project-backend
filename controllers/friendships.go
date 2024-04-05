@@ -5,6 +5,7 @@ import (
 	"github.com/dekunma/cpsc-519-project-backend/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"slices"
 )
 
 func CreateFriendInvitation(c *gin.Context) {
@@ -68,4 +69,31 @@ func GetAllFriends(c *gin.Context) {
 	models.DB.Select("id, email, avatar, name").Find(&friends, friendIds)
 
 	c.JSON(http.StatusOK, gin.H{"friends": friends})
+}
+
+func GetFriendshipByEmail(c *gin.Context) {
+	var request models.GetFriendshipByEmailRequest
+	if !bindRequestToJSON(&request, c) {
+		return
+	}
+
+	searchedUser := models.User{}
+	models.DB.Where("email = ?", request.Email).Find(&searchedUser)
+	if searchedUser.ID == 0 {
+		c.AbortWithStatusJSON(http.StatusBadRequest, exceptions.CustomError{
+			Code:    exceptions.CodeUserNotFound,
+			Message: "No user found with the given email",
+		})
+		return
+	}
+
+	currentUserEmail := extractEmailFromJWT(c)
+	currentUser := models.User{}
+	models.DB.Where("email = ?", currentUserEmail).Find(&currentUser)
+
+	friendIdsOfCurrentUser := getFriendIDsOfUserById(currentUser.ID)
+	requestSent := slices.Contains(friendIdsOfCurrentUser, searchedUser.ID)
+
+	searchedUser.Password = ""
+	c.JSON(http.StatusOK, gin.H{"user": searchedUser, "request_sent": requestSent})
 }
