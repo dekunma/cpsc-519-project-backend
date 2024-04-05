@@ -19,7 +19,7 @@ func CreatePost(c *gin.Context) {
 	post.UserID = user.ID
 	models.DB.Create(&post)
 
-	c.JSON(http.StatusOK, gin.H{"message": "post created"})
+	c.JSON(http.StatusOK, gin.H{"message": "post created", "post_id": post.ID})
 }
 
 func GetAllPostsForUserAndFriends(c *gin.Context) {
