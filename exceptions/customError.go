@@ -13,6 +13,7 @@ const (
 	// service triggered errors
 	CodeSendEmailFailed = 3001
 	CodeUploadFailed    = 3002
+	CodeDatabaseError   = 3003
 )
 
 type CustomError struct {

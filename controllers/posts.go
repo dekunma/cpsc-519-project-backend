@@ -122,3 +122,45 @@ func UploadPostImage(c *gin.Context) {
 		"filepath": filepath,
 	})
 }
+
+// GetPostImages godoc
+//
+//	@Summary	retrieves images for a post
+//	@Tags		posts
+//	@Accept		json
+//	@Produce	json
+//	@Success	200	{object}	string
+//	@Router		/posts/get-post-images [get]
+func GetPostImages(c *gin.Context) {
+	postIDStr := c.PostForm("post_id")
+	if postIDStr == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Post ID is required"})
+		return
+	}
+
+	postID, err := strconv.ParseUint(postIDStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Post ID"})
+		return
+	}
+
+	var postImages []models.PostImages
+	result := models.DB.Where("post_id = ?", postID).Find(&postImages)
+	if result.Error != nil {
+		fmt.Println("Database error:", result.Error)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, exceptions.CustomError{
+			Code:    exceptions.CodeDatabaseError,
+			Message: "Failed to retrieve images",
+		})
+		return
+	}
+
+	if len(postImages) == 0 { // no images found
+		c.JSON(http.StatusOK, gin.H{"images": postImages,
+			"message": "No images found for this post"})
+		return
+	}
+
+	// Normal response
+	c.JSON(http.StatusOK, gin.H{"images": postImages})
+}

@@ -107,6 +107,7 @@ func main() {
 		posts.POST("upload-post-image", controllers.UploadPostImage)
 		posts.GET("get-all-posts", controllers.GetAllPostsForUserAndFriends)
 		posts.GET("get-post-details/:id", controllers.GetPostDetails)
+		posts.GET("get-post-images", controllers.GetPostImages)
 	}
 
 	PORT := os.Getenv("PORT")

@@ -24,3 +24,7 @@ type UploadPostImageRequest struct {
 	PostID uint   `json:"post_id" binding:"required"`
 	Image  string `json:"image" binding:"required"`
 }
+
+type GetPostImagesRequest struct {
+	PostID uint `json:"post_id" binding:"required"`
+}
