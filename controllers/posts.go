@@ -105,7 +105,7 @@ func UploadPostImage(c *gin.Context) {
 
 		return
 	}
-	filepath := "https://" + bucketName + "." + "s3" + ".amazonaws.com/post-images/" + postIDStr + "/" + filename
+	filepath := "https://" + bucketName + "." + "s3" + ".amazonaws.com/" + filename
 
 	// update the PostImages table with a new entry
 	postImage := models.PostImages{
