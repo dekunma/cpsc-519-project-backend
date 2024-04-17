@@ -43,6 +43,7 @@ func CreateFriendInvitation(c *gin.Context) {
 }
 
 func SetInvitationAccepted(c *gin.Context) {
+	email := extractEmailFromJWT(c)
 	var requestData struct {
 		FriendID uint `json:"friend_id"` // ID of the user who sent the request.
 	}
@@ -51,10 +52,8 @@ func SetInvitationAccepted(c *gin.Context) {
 		return
 	}
 
-	// Get the current user's ID from JWT.
-	currentUserEmail := extractEmailFromJWT(c)
 	currentUser := models.User{}
-	models.DB.Where("email = ?", currentUserEmail).First(&currentUser)
+	models.DB.Where("email = ?", email).First(&currentUser)
 	if currentUser.ID == 0 {
 		c.AbortWithStatusJSON(http.StatusBadRequest, exceptions.CustomError{
 			Code:    exceptions.CodeUserNotFound,
@@ -63,22 +62,20 @@ func SetInvitationAccepted(c *gin.Context) {
 		return
 	}
 
-	// Update the friendship status to accepted where the currentUser is the friend.
 	result := models.DB.Model(&models.Friendship{}).
-		Where("user_id = ? AND friend_id = ?", requestData.FriendID, currentUser.ID).
+		Where("(user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)", requestData.FriendID, currentUser.ID, currentUser.ID, requestData.FriendID).
 		Update("accepted", true)
 
-	// Handle errors during the update process.
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not accept the invitation"})
 		return
 	}
 
-	// Respond with success.
 	c.JSON(http.StatusOK, gin.H{"message": "Friend invitation accepted"})
 }
 
 func SetInvitationRejected(c *gin.Context) {
+	email := extractEmailFromJWT(c)
 	var requestData struct {
 		FriendID uint `json:"friend_id"` // ID of the user who sent the request.
 	}
@@ -87,10 +84,8 @@ func SetInvitationRejected(c *gin.Context) {
 		return
 	}
 
-	// Get the current user's ID from JWT.
-	currentUserEmail := extractEmailFromJWT(c)
 	currentUser := models.User{}
-	models.DB.Where("email = ?", currentUserEmail).First(&currentUser)
+	models.DB.Where("email = ?", email).First(&currentUser)
 	if currentUser.ID == 0 {
 		c.AbortWithStatusJSON(http.StatusBadRequest, exceptions.CustomError{
 			Code:    exceptions.CodeUserNotFound,
@@ -99,16 +94,13 @@ func SetInvitationRejected(c *gin.Context) {
 		return
 	}
 
-	// Delete the friendship where the currentUser is the friend.
-	result := models.DB.Where("user_id = ? AND friend_id = ?", requestData.FriendID, currentUser.ID).Delete(&models.Friendship{})
+	result := models.DB.Where("(user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)", requestData.FriendID, currentUser.ID, currentUser.ID, requestData.FriendID).Delete(&models.Friendship{})
 
-	// Handle errors during the deletion process.
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not reject the invitation"})
 		return
 	}
 
-	// Respond with success.
 	c.JSON(http.StatusOK, gin.H{"message": "Friend invitation rejected"})
 }
 
@@ -129,7 +121,7 @@ func GetFriendInvitations(c *gin.Context) {
 
 	// return an empty array if the user has no friend invitation
 	if len(friendIds) == 0 {
-		c.JSON(http.StatusOK, gin.H{"friends": []models.User{}})
+		c.JSON(http.StatusOK, gin.H{"friendRequests": []models.User{}})
 		return
 	}
 
@@ -137,7 +129,7 @@ func GetFriendInvitations(c *gin.Context) {
 	// equivalent to SELECT id, email FROM users WHERE id IN (friendIds)
 	models.DB.Select("id, email, avatar, name").Find(&friends, friendIds)
 
-	c.JSON(http.StatusOK, gin.H{"friends": friends})
+	c.JSON(http.StatusOK, gin.H{"friendRequests": friends})
 }
 
 func GetAllFriends(c *gin.Context) {
