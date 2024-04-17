@@ -98,6 +98,9 @@ func main() {
 		friendships.GET("email/:email", controllers.GetFriendshipByEmail)
 		friendships.POST("friend-invitations", controllers.CreateFriendInvitation)
 		friendships.GET("all-friends", controllers.GetAllFriends)
+		friendships.GET("friend-requests", controllers.GetFriendInvitations)
+		friendships.POST("accept-friend-request/:id", controllers.SetInvitationAccepted)
+		friendships.POST("dismiss-friend-request/:id", controllers.SetInvitationRejected)
 	}
 
 	// posts

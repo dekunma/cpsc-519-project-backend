@@ -40,3 +40,21 @@ func getFriendIDsOfUserById(userID uint) []uint {
 
 	return friendIds
 }
+
+func getFriendInvitations(userID uint) []uint {
+	var friendships []*models.Friendship
+	models.DB.Where("(user_id = ? or friend_id = ? ) AND accepted = ?", userID, userID, false).Find(&friendships)
+
+	var friendIds []uint
+	for _, f := range friendships {
+		// append whichever side that is not the id of the user
+		// (i.e. append the id of their friend)
+		if f.UserID != userID {
+			friendIds = append(friendIds, f.UserID)
+		} else {
+			friendIds = append(friendIds, f.FriendID)
+		}
+	}
+
+	return friendIds
+}
