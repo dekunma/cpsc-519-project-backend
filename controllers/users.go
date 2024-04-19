@@ -230,3 +230,27 @@ func UploadAvatar(c *gin.Context) {
 		"filepath": filepath,
 	})
 }
+
+// ChangePassword godoc
+//
+//	@Summary	Change password
+//	@Tags		users
+//	@Accept		json
+//	@Produce	json
+//	@Success	200	{object}	string
+//	@Router		/users/change-password [patch]
+func ChangePassword(c *gin.Context) {
+	var request models.ChangePasswordRequest
+	if !bindRequestToJSON(&request, c) {
+		return
+	}
+
+	email := extractEmailFromJWT(c)
+	var user models.User
+	models.DB.Where("email = ?", email).Find(&user)
+
+	password, _ := bcrypt.GenerateFromPassword([]byte(request.NewPassword), bcrypt.DefaultCost)
+	models.DB.Model(&models.User{}).Where("email = ?", email).Update("password", string(password))
+
+	c.JSON(http.StatusOK, gin.H{"message": "Password updated"})
+}

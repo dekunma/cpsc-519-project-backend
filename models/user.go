@@ -27,3 +27,7 @@ type UpdateProfileRequest struct {
 	Name   string `json:"name"`
 	Avatar string `json:"avatar"`
 }
+
+type ChangePasswordRequest struct {
+	NewPassword string `json:"new_password" binding:"required"`
+}

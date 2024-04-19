@@ -89,6 +89,7 @@ func main() {
 		users.PATCH("update-profile", controllers.UpdateProfile)
 		users.GET("profile", controllers.GetOwnProfile)
 		users.POST("upload-avatar", controllers.UploadAvatar)
+		users.PATCH("change-password", controllers.ChangePassword)
 	}
 
 	// friendships
