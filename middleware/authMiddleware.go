@@ -12,7 +12,7 @@ import (
 func GetAuthMiddleware() (*jwt.GinJWTMiddleware, error) {
 	identityKey := "email"
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
-		Realm:       "full stack project NAME TBD",
+		Realm:       "full stack project PinPals",
 		Key:         []byte(os.Getenv("JWT_SECRET")),
 		Timeout:     time.Hour * 24 * 90,
 		MaxRefresh:  time.Hour * 24 * 90,
